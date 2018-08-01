@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SectorResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bookstore</a> &gt; <a href="index.source.html" class="el_package">com.bookstore.web.rest</a> &gt; <span class="el_source">SectorResource.java</span></div><h1>SectorResource.java</h1><pre class="source lang-java linenums">package com.bookstore.web.rest;
+
+import com.codahale.metrics.annotation.Timed;
+import com.bookstore.service.SectorService;
+import com.bookstore.web.rest.errors.BadRequestAlertException;
+import com.bookstore.web.rest.util.HeaderUtil;
+import com.bookstore.web.rest.util.PaginationUtil;
+import com.bookstore.service.dto.SectorDTO;
+import io.github.jhipster.web.util.ResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * REST controller for managing Sector.
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class SectorResource {
+
+<span class="fc" id="L33">    private final Logger log = LoggerFactory.getLogger(SectorResource.class);</span>
+
+    private static final String ENTITY_NAME = &quot;sector&quot;;
+
+    private final SectorService sectorService;
+
+<span class="fc" id="L39">    public SectorResource(SectorService sectorService) {</span>
+<span class="fc" id="L40">        this.sectorService = sectorService;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * POST  /sectors : Create a new sector.
+     *
+     * @param sectorDTO the sectorDTO to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new sectorDTO, or with status 400 (Bad Request) if the sector has already an ID
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PostMapping(&quot;/sectors&quot;)
+    @Timed
+    public ResponseEntity&lt;SectorDTO&gt; createSector(@Valid @RequestBody SectorDTO sectorDTO) throws URISyntaxException {
+<span class="fc" id="L53">        log.debug(&quot;REST request to save Sector : {}&quot;, sectorDTO);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (sectorDTO.getId() != null) {</span>
+<span class="fc" id="L55">            throw new BadRequestAlertException(&quot;A new sector cannot already have an ID&quot;, ENTITY_NAME, &quot;idexists&quot;);</span>
+        }
+<span class="fc" id="L57">        SectorDTO result = sectorService.save(sectorDTO);</span>
+<span class="fc" id="L58">        return ResponseEntity.created(new URI(&quot;/api/sectors/&quot; + result.getId()))</span>
+<span class="fc" id="L59">            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))</span>
+<span class="fc" id="L60">            .body(result);</span>
+    }
+
+    /**
+     * PUT  /sectors : Updates an existing sector.
+     *
+     * @param sectorDTO the sectorDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated sectorDTO,
+     * or with status 400 (Bad Request) if the sectorDTO is not valid,
+     * or with status 500 (Internal Server Error) if the sectorDTO couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping(&quot;/sectors&quot;)
+    @Timed
+    public ResponseEntity&lt;SectorDTO&gt; updateSector(@Valid @RequestBody SectorDTO sectorDTO) throws URISyntaxException {
+<span class="fc" id="L75">        log.debug(&quot;REST request to update Sector : {}&quot;, sectorDTO);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (sectorDTO.getId() == null) {</span>
+<span class="fc" id="L77">            throw new BadRequestAlertException(&quot;Invalid id&quot;, ENTITY_NAME, &quot;idnull&quot;);</span>
+        }
+<span class="fc" id="L79">        SectorDTO result = sectorService.save(sectorDTO);</span>
+<span class="fc" id="L80">        return ResponseEntity.ok()</span>
+<span class="fc" id="L81">            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, sectorDTO.getId().toString()))</span>
+<span class="fc" id="L82">            .body(result);</span>
+    }
+
+    /**
+     * GET  /sectors : get all the sectors.
+     *
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of sectors in body
+     */
+    @GetMapping(&quot;/sectors&quot;)
+    @Timed
+    public ResponseEntity&lt;List&lt;SectorDTO&gt;&gt; getAllSectors(Pageable pageable) {
+<span class="fc" id="L94">        log.debug(&quot;REST request to get a page of Sectors&quot;);</span>
+<span class="fc" id="L95">        Page&lt;SectorDTO&gt; page = sectorService.findAll(pageable);</span>
+<span class="fc" id="L96">        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, &quot;/api/sectors&quot;);</span>
+<span class="fc" id="L97">        return new ResponseEntity&lt;&gt;(page.getContent(), headers, HttpStatus.OK);</span>
+    }
+
+    /**
+     * GET  /sectors/:id : get the &quot;id&quot; sector.
+     *
+     * @param id the id of the sectorDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the sectorDTO, or with status 404 (Not Found)
+     */
+    @GetMapping(&quot;/sectors/{id}&quot;)
+    @Timed
+    public ResponseEntity&lt;SectorDTO&gt; getSector(@PathVariable Long id) {
+<span class="fc" id="L109">        log.debug(&quot;REST request to get Sector : {}&quot;, id);</span>
+<span class="fc" id="L110">        Optional&lt;SectorDTO&gt; sectorDTO = sectorService.findOne(id);</span>
+<span class="fc" id="L111">        return ResponseUtil.wrapOrNotFound(sectorDTO);</span>
+    }
+
+    /**
+     * DELETE  /sectors/:id : delete the &quot;id&quot; sector.
+     *
+     * @param id the id of the sectorDTO to delete
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @DeleteMapping(&quot;/sectors/{id}&quot;)
+    @Timed
+    public ResponseEntity&lt;Void&gt; deleteSector(@PathVariable Long id) {
+<span class="fc" id="L123">        log.debug(&quot;REST request to delete Sector : {}&quot;, id);</span>
+<span class="fc" id="L124">        sectorService.delete(id);</span>
+<span class="fc" id="L125">        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

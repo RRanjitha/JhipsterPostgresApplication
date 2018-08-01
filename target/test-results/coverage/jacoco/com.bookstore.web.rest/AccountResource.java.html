@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bookstore</a> &gt; <a href="index.source.html" class="el_package">com.bookstore.web.rest</a> &gt; <span class="el_source">AccountResource.java</span></div><h1>AccountResource.java</h1><pre class="source lang-java linenums">package com.bookstore.web.rest;
+
+import com.codahale.metrics.annotation.Timed;
+
+import com.bookstore.domain.PersistentToken;
+import com.bookstore.repository.PersistentTokenRepository;
+import com.bookstore.domain.User;
+import com.bookstore.repository.UserRepository;
+import com.bookstore.security.SecurityUtils;
+import com.bookstore.service.MailService;
+import com.bookstore.service.UserService;
+import com.bookstore.service.dto.UserDTO;
+import com.bookstore.web.rest.errors.*;
+import com.bookstore.web.rest.vm.KeyAndPasswordVM;
+import com.bookstore.web.rest.vm.ManagedUserVM;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import com.bookstore.service.dto.PasswordChangeDTO;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.*;
+
+/**
+ * REST controller for managing the current user's account.
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class AccountResource {
+
+<span class="fc" id="L37">    private final Logger log = LoggerFactory.getLogger(AccountResource.class);</span>
+
+    private final UserRepository userRepository;
+
+    private final UserService userService;
+
+    private final MailService mailService;
+
+    private final PersistentTokenRepository persistentTokenRepository;
+
+<span class="fc" id="L47">    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService, PersistentTokenRepository persistentTokenRepository) {</span>
+
+<span class="fc" id="L49">        this.userRepository = userRepository;</span>
+<span class="fc" id="L50">        this.userService = userService;</span>
+<span class="fc" id="L51">        this.mailService = mailService;</span>
+<span class="fc" id="L52">        this.persistentTokenRepository = persistentTokenRepository;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * POST  /register : register the user.
+     *
+     * @param managedUserVM the managed user View Model
+     * @throws InvalidPasswordException 400 (Bad Request) if the password is incorrect
+     * @throws EmailAlreadyUsedException 400 (Bad Request) if the email is already used
+     * @throws LoginAlreadyUsedException 400 (Bad Request) if the login is already used
+     */
+    @PostMapping(&quot;/register&quot;)
+    @Timed
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!checkPasswordLength(managedUserVM.getPassword())) {</span>
+<span class="fc" id="L68">            throw new InvalidPasswordException();</span>
+        }
+<span class="fc" id="L70">        userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase()).ifPresent(u -&gt; {throw new LoginAlreadyUsedException();});</span>
+<span class="fc" id="L71">        userRepository.findOneByEmailIgnoreCase(managedUserVM.getEmail()).ifPresent(u -&gt; {throw new EmailAlreadyUsedException();});</span>
+<span class="fc" id="L72">        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());</span>
+<span class="fc" id="L73">        mailService.sendActivationEmail(user);</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * GET  /activate : activate the registered user.
+     *
+     * @param key the activation key
+     * @throws RuntimeException 500 (Internal Server Error) if the user couldn't be activated
+     */
+    @GetMapping(&quot;/activate&quot;)
+    @Timed
+    public void activateAccount(@RequestParam(value = &quot;key&quot;) String key) {
+<span class="fc" id="L85">        Optional&lt;User&gt; user = userService.activateRegistration(key);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (!user.isPresent()) {</span>
+<span class="fc" id="L87">            throw new InternalServerErrorException(&quot;No user was found for this activation key&quot;);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * GET  /authenticate : check if the user is authenticated, and return its login.
+     *
+     * @param request the HTTP request
+     * @return the login if the user is authenticated
+     */
+    @GetMapping(&quot;/authenticate&quot;)
+    @Timed
+    public String isAuthenticated(HttpServletRequest request) {
+<span class="fc" id="L100">        log.debug(&quot;REST request to check if the current user is authenticated&quot;);</span>
+<span class="fc" id="L101">        return request.getRemoteUser();</span>
+    }
+
+    /**
+     * GET  /account : get the current user.
+     *
+     * @return the current user
+     * @throws RuntimeException 500 (Internal Server Error) if the user couldn't be returned
+     */
+    @GetMapping(&quot;/account&quot;)
+    @Timed
+    public UserDTO getAccount() {
+<span class="fc" id="L113">        return userService.getUserWithAuthorities()</span>
+<span class="fc" id="L114">            .map(UserDTO::new)</span>
+<span class="fc" id="L115">            .orElseThrow(() -&gt; new InternalServerErrorException(&quot;User could not be found&quot;));</span>
+    }
+
+    /**
+     * POST  /account : update the current user information.
+     *
+     * @param userDTO the current user information
+     * @throws EmailAlreadyUsedException 400 (Bad Request) if the email is already used
+     * @throws RuntimeException 500 (Internal Server Error) if the user login wasn't found
+     */
+    @PostMapping(&quot;/account&quot;)
+    @Timed
+    public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
+<span class="pc" id="L128">        final String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -&gt; new InternalServerErrorException(&quot;Current user login not found&quot;));</span>
+<span class="fc" id="L129">        Optional&lt;User&gt; existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());</span>
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (existingUser.isPresent() &amp;&amp; (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {</span>
+<span class="fc" id="L131">            throw new EmailAlreadyUsedException();</span>
+        }
+<span class="fc" id="L133">        Optional&lt;User&gt; user = userRepository.findOneByLogin(userLogin);</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (!user.isPresent()) {</span>
+<span class="nc" id="L135">            throw new InternalServerErrorException(&quot;User could not be found&quot;);</span>
+        }
+<span class="fc" id="L137">        userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),</span>
+<span class="fc" id="L138">            userDTO.getLangKey(), userDTO.getImageUrl());</span>
+<span class="fc" id="L139">   }</span>
+
+    /**
+     * POST  /account/change-password : changes the current user's password
+     *
+     * @param passwordChangeDto current and new password
+     * @throws InvalidPasswordException 400 (Bad Request) if the new password is incorrect
+     */
+    @PostMapping(path = &quot;/account/change-password&quot;)
+    @Timed
+    public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (!checkPasswordLength(passwordChangeDto.getNewPassword())) {</span>
+<span class="fc" id="L151">            throw new InvalidPasswordException();</span>
+        }
+<span class="fc" id="L153">        userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());</span>
+<span class="fc" id="L154">   }</span>
+
+    /**
+     * GET  /account/sessions : get the current open sessions.
+     *
+     * @return the current open sessions
+     * @throws RuntimeException 500 (Internal Server Error) if the current open sessions couldn't be retrieved
+     */
+    @GetMapping(&quot;/account/sessions&quot;)
+    @Timed
+    public List&lt;PersistentToken&gt; getCurrentSessions() {
+<span class="fc" id="L165">        return persistentTokenRepository.findByUser(</span>
+<span class="fc" id="L166">            userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()</span>
+<span class="pc" id="L167">                .orElseThrow(() -&gt; new InternalServerErrorException(&quot;Current user login not found&quot;)))</span>
+<span class="pc" id="L168">                    .orElseThrow(() -&gt; new InternalServerErrorException(&quot;User could not be found&quot;))</span>
+        );
+    }
+
+    /**
+     * DELETE  /account/sessions?series={series} : invalidate an existing session.
+     *
+     * - You can only delete your own sessions, not any other user's session
+     * - If you delete one of your existing sessions, and that you are currently logged in on that session, you will
+     *   still be able to use that session, until you quit your browser: it does not work in real time (there is
+     *   no API for that), it only removes the &quot;remember me&quot; cookie
+     * - This is also true if you invalidate your current session: you will still be able to use it until you close
+     *   your browser or that the session times out. But automatic login (the &quot;remember me&quot; cookie) will not work
+     *   anymore.
+     *   There is an API to invalidate the current session, but there is no API to check which session uses which
+     *   cookie.
+     *
+     * @param series the series of an existing session
+     * @throws UnsupportedEncodingException if the series couldnt be URL decoded
+     */
+    @DeleteMapping(&quot;/account/sessions/{series}&quot;)
+    @Timed
+    public void invalidateSession(@PathVariable String series) throws UnsupportedEncodingException {
+<span class="fc" id="L191">        String decodedSeries = URLDecoder.decode(series, &quot;UTF-8&quot;);</span>
+<span class="fc" id="L192">        SecurityUtils.getCurrentUserLogin()</span>
+<span class="fc" id="L193">            .flatMap(userRepository::findOneByLogin)</span>
+<span class="fc" id="L194">            .ifPresent(u -&gt;</span>
+<span class="fc" id="L195">                persistentTokenRepository.findByUser(u).stream()</span>
+<span class="fc" id="L196">                    .filter(persistentToken -&gt; StringUtils.equals(persistentToken.getSeries(), decodedSeries))</span>
+<span class="fc" id="L197">                    .findAny().ifPresent(t -&gt; persistentTokenRepository.deleteById(decodedSeries)));</span>
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * POST   /account/reset-password/init : Send an email to reset the password of the user
+     *
+     * @param mail the mail of the user
+     * @throws EmailNotFoundException 400 (Bad Request) if the email address is not registered
+     */
+    @PostMapping(path = &quot;/account/reset-password/init&quot;)
+    @Timed
+    public void requestPasswordReset(@RequestBody String mail) {
+<span class="fc" id="L209">       mailService.sendPasswordResetMail(</span>
+<span class="fc" id="L210">           userService.requestPasswordReset(mail)</span>
+<span class="fc" id="L211">               .orElseThrow(EmailNotFoundException::new)</span>
+       );
+<span class="fc" id="L213">    }</span>
+
+    /**
+     * POST   /account/reset-password/finish : Finish to reset the password of the user
+     *
+     * @param keyAndPassword the generated key and the new password
+     * @throws InvalidPasswordException 400 (Bad Request) if the password is incorrect
+     * @throws RuntimeException 500 (Internal Server Error) if the password could not be reset
+     */
+    @PostMapping(path = &quot;/account/reset-password/finish&quot;)
+    @Timed
+    public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (!checkPasswordLength(keyAndPassword.getNewPassword())) {</span>
+<span class="fc" id="L226">            throw new InvalidPasswordException();</span>
+        }
+<span class="fc" id="L228">        Optional&lt;User&gt; user =</span>
+<span class="fc" id="L229">            userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());</span>
+
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (!user.isPresent()) {</span>
+<span class="fc" id="L232">            throw new InternalServerErrorException(&quot;No user was found for this reset key&quot;);</span>
+        }
+<span class="fc" id="L234">    }</span>
+
+    private static boolean checkPasswordLength(String password) {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        return !StringUtils.isEmpty(password) &amp;&amp;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            password.length() &gt;= ManagedUserVM.PASSWORD_MIN_LENGTH &amp;&amp;</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            password.length() &lt;= ManagedUserVM.PASSWORD_MAX_LENGTH;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

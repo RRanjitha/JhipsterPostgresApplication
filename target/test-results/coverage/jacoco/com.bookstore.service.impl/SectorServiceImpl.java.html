@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SectorServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bookstore</a> &gt; <a href="index.source.html" class="el_package">com.bookstore.service.impl</a> &gt; <span class="el_source">SectorServiceImpl.java</span></div><h1>SectorServiceImpl.java</h1><pre class="source lang-java linenums">package com.bookstore.service.impl;
+
+import com.bookstore.service.SectorService;
+import com.bookstore.domain.Sector;
+import com.bookstore.repository.SectorRepository;
+import com.bookstore.service.dto.SectorDTO;
+import com.bookstore.service.mapper.SectorMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import java.util.Optional;
+/**
+ * Service Implementation for managing Sector.
+ */
+@Service
+@Transactional
+public class SectorServiceImpl implements SectorService {
+
+<span class="fc" id="L25">    private final Logger log = LoggerFactory.getLogger(SectorServiceImpl.class);</span>
+
+    private final SectorRepository sectorRepository;
+
+    private final SectorMapper sectorMapper;
+
+<span class="fc" id="L31">    public SectorServiceImpl(SectorRepository sectorRepository, SectorMapper sectorMapper) {</span>
+<span class="fc" id="L32">        this.sectorRepository = sectorRepository;</span>
+<span class="fc" id="L33">        this.sectorMapper = sectorMapper;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * Save a sector.
+     *
+     * @param sectorDTO the entity to save
+     * @return the persisted entity
+     */
+    @Override
+    public SectorDTO save(SectorDTO sectorDTO) {
+<span class="fc" id="L44">        log.debug(&quot;Request to save Sector : {}&quot;, sectorDTO);</span>
+<span class="fc" id="L45">        Sector sector = sectorMapper.toEntity(sectorDTO);</span>
+<span class="fc" id="L46">        sector = sectorRepository.save(sector);</span>
+<span class="fc" id="L47">        return sectorMapper.toDto(sector);</span>
+    }
+
+    /**
+     * Get all the sectors.
+     *
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page&lt;SectorDTO&gt; findAll(Pageable pageable) {
+<span class="fc" id="L59">        log.debug(&quot;Request to get all Sectors&quot;);</span>
+<span class="fc" id="L60">        return sectorRepository.findAll(pageable)</span>
+<span class="fc" id="L61">            .map(sectorMapper::toDto);</span>
+    }
+
+
+    /**
+     * Get one sector by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional&lt;SectorDTO&gt; findOne(Long id) {
+<span class="fc" id="L74">        log.debug(&quot;Request to get Sector : {}&quot;, id);</span>
+<span class="fc" id="L75">        return sectorRepository.findById(id)</span>
+<span class="fc" id="L76">            .map(sectorMapper::toDto);</span>
+    }
+
+    /**
+     * Delete the sector by id.
+     *
+     * @param id the id of the entity
+     */
+    @Override
+    public void delete(Long id) {
+<span class="fc" id="L86">        log.debug(&quot;Request to delete Sector : {}&quot;, id);</span>
+<span class="fc" id="L87">        sectorRepository.deleteById(id);</span>
+<span class="fc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

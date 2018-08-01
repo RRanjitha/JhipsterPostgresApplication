@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZonalResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bookstore</a> &gt; <a href="index.source.html" class="el_package">com.bookstore.web.rest</a> &gt; <span class="el_source">ZonalResource.java</span></div><h1>ZonalResource.java</h1><pre class="source lang-java linenums">package com.bookstore.web.rest;
+
+import com.codahale.metrics.annotation.Timed;
+import com.bookstore.service.ZonalService;
+import com.bookstore.web.rest.errors.BadRequestAlertException;
+import com.bookstore.web.rest.util.HeaderUtil;
+import com.bookstore.service.dto.ZonalDTO;
+import io.github.jhipster.web.util.ResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * REST controller for managing Zonal.
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class ZonalResource {
+
+<span class="fc" id="L28">    private final Logger log = LoggerFactory.getLogger(ZonalResource.class);</span>
+
+    private static final String ENTITY_NAME = &quot;zonal&quot;;
+
+    private final ZonalService zonalService;
+
+<span class="fc" id="L34">    public ZonalResource(ZonalService zonalService) {</span>
+<span class="fc" id="L35">        this.zonalService = zonalService;</span>
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * POST  /zonals : Create a new zonal.
+     *
+     * @param zonalDTO the zonalDTO to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new zonalDTO, or with status 400 (Bad Request) if the zonal has already an ID
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PostMapping(&quot;/zonals&quot;)
+    @Timed
+    public ResponseEntity&lt;ZonalDTO&gt; createZonal(@Valid @RequestBody ZonalDTO zonalDTO) throws URISyntaxException {
+<span class="fc" id="L48">        log.debug(&quot;REST request to save Zonal : {}&quot;, zonalDTO);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (zonalDTO.getId() != null) {</span>
+<span class="fc" id="L50">            throw new BadRequestAlertException(&quot;A new zonal cannot already have an ID&quot;, ENTITY_NAME, &quot;idexists&quot;);</span>
+        }
+<span class="fc" id="L52">        ZonalDTO result = zonalService.save(zonalDTO);</span>
+<span class="fc" id="L53">        return ResponseEntity.created(new URI(&quot;/api/zonals/&quot; + result.getId()))</span>
+<span class="fc" id="L54">            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))</span>
+<span class="fc" id="L55">            .body(result);</span>
+    }
+
+    /**
+     * PUT  /zonals : Updates an existing zonal.
+     *
+     * @param zonalDTO the zonalDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated zonalDTO,
+     * or with status 400 (Bad Request) if the zonalDTO is not valid,
+     * or with status 500 (Internal Server Error) if the zonalDTO couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping(&quot;/zonals&quot;)
+    @Timed
+    public ResponseEntity&lt;ZonalDTO&gt; updateZonal(@Valid @RequestBody ZonalDTO zonalDTO) throws URISyntaxException {
+<span class="fc" id="L70">        log.debug(&quot;REST request to update Zonal : {}&quot;, zonalDTO);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (zonalDTO.getId() == null) {</span>
+<span class="fc" id="L72">            throw new BadRequestAlertException(&quot;Invalid id&quot;, ENTITY_NAME, &quot;idnull&quot;);</span>
+        }
+<span class="fc" id="L74">        ZonalDTO result = zonalService.save(zonalDTO);</span>
+<span class="fc" id="L75">        return ResponseEntity.ok()</span>
+<span class="fc" id="L76">            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, zonalDTO.getId().toString()))</span>
+<span class="fc" id="L77">            .body(result);</span>
+    }
+
+    /**
+     * GET  /zonals : get all the zonals.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of zonals in body
+     */
+    @GetMapping(&quot;/zonals&quot;)
+    @Timed
+    public List&lt;ZonalDTO&gt; getAllZonals() {
+<span class="fc" id="L88">        log.debug(&quot;REST request to get all Zonals&quot;);</span>
+<span class="fc" id="L89">        return zonalService.findAll();</span>
+    }
+
+    /**
+     * GET  /zonals/:id : get the &quot;id&quot; zonal.
+     *
+     * @param id the id of the zonalDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the zonalDTO, or with status 404 (Not Found)
+     */
+    @GetMapping(&quot;/zonals/{id}&quot;)
+    @Timed
+    public ResponseEntity&lt;ZonalDTO&gt; getZonal(@PathVariable Long id) {
+<span class="fc" id="L101">        log.debug(&quot;REST request to get Zonal : {}&quot;, id);</span>
+<span class="fc" id="L102">        Optional&lt;ZonalDTO&gt; zonalDTO = zonalService.findOne(id);</span>
+<span class="fc" id="L103">        return ResponseUtil.wrapOrNotFound(zonalDTO);</span>
+    }
+
+    /**
+     * DELETE  /zonals/:id : delete the &quot;id&quot; zonal.
+     *
+     * @param id the id of the zonalDTO to delete
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @DeleteMapping(&quot;/zonals/{id}&quot;)
+    @Timed
+    public ResponseEntity&lt;Void&gt; deleteZonal(@PathVariable Long id) {
+<span class="fc" id="L115">        log.debug(&quot;REST request to delete Zonal : {}&quot;, id);</span>
+<span class="fc" id="L116">        zonalService.delete(id);</span>
+<span class="fc" id="L117">        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

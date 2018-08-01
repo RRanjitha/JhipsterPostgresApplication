@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZonalMapperImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Bookstore</a> &gt; <a href="index.source.html" class="el_package">com.bookstore.service.mapper</a> &gt; <span class="el_source">ZonalMapperImpl.java</span></div><h1>ZonalMapperImpl.java</h1><pre class="source lang-java linenums">package com.bookstore.service.mapper;
+
+import com.bookstore.domain.Zonal;
+import com.bookstore.service.dto.ZonalDTO;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+    date = &quot;2018-07-31T17:15:52+0530&quot;,
+    comments = &quot;version: 1.2.0.Final, compiler: javac, environment: Java 1.8.0_181 (Oracle Corporation)&quot;
+)
+@Component
+<span class="fc" id="L16">public class ZonalMapperImpl implements ZonalMapper {</span>
+
+    @Override
+    public ZonalDTO toDto(Zonal entity) {
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if ( entity == null ) {</span>
+<span class="nc" id="L21">            return null;</span>
+        }
+
+<span class="fc" id="L24">        ZonalDTO zonalDTO = new ZonalDTO();</span>
+
+<span class="fc" id="L26">        zonalDTO.setId( entity.getId() );</span>
+<span class="fc" id="L27">        zonalDTO.setName( entity.getName() );</span>
+<span class="fc" id="L28">        zonalDTO.setDate( entity.getDate() );</span>
+
+<span class="fc" id="L30">        return zonalDTO;</span>
+    }
+
+    @Override
+    public List&lt;Zonal&gt; toEntity(List&lt;ZonalDTO&gt; dtoList) {
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if ( dtoList == null ) {</span>
+<span class="nc" id="L36">            return null;</span>
+        }
+
+<span class="nc" id="L39">        List&lt;Zonal&gt; list = new ArrayList&lt;Zonal&gt;( dtoList.size() );</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        for ( ZonalDTO zonalDTO : dtoList ) {</span>
+<span class="nc" id="L41">            list.add( toEntity( zonalDTO ) );</span>
+<span class="nc" id="L42">        }</span>
+
+<span class="nc" id="L44">        return list;</span>
+    }
+
+    @Override
+    public List&lt;ZonalDTO&gt; toDto(List&lt;Zonal&gt; entityList) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if ( entityList == null ) {</span>
+<span class="nc" id="L50">            return null;</span>
+        }
+
+<span class="nc" id="L53">        List&lt;ZonalDTO&gt; list = new ArrayList&lt;ZonalDTO&gt;( entityList.size() );</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for ( Zonal zonal : entityList ) {</span>
+<span class="nc" id="L55">            list.add( toDto( zonal ) );</span>
+<span class="nc" id="L56">        }</span>
+
+<span class="nc" id="L58">        return list;</span>
+    }
+
+    @Override
+    public Zonal toEntity(ZonalDTO zonalDTO) {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if ( zonalDTO == null ) {</span>
+<span class="nc" id="L64">            return null;</span>
+        }
+
+<span class="fc" id="L67">        Zonal zonal = new Zonal();</span>
+
+<span class="fc" id="L69">        zonal.setId( zonalDTO.getId() );</span>
+<span class="fc" id="L70">        zonal.setName( zonalDTO.getName() );</span>
+<span class="fc" id="L71">        zonal.setDate( zonalDTO.getDate() );</span>
+
+<span class="fc" id="L73">        return zonal;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

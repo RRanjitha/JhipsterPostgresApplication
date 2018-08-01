@@ -1,0 +1,32 @@
+Created a simple application in Jhipster using SpringBoot, Angular, Postgresql
+
+Goto admin login:
+to excecute : sudo su postgres
+to start : psql
+change password : ALTER USER bookstore  WITH PASSWORD 'root123';
+
+After goto intelli Edit:
+Goto (This is for development phase - Same wise we have to update as production phase): 
+	src->main->resources->config->application-dev.yml
+
+See the data source for spring :
+datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://localhost:5432/bookstore
+        username: bookstore
+        password: 
+
+Based on the Data base and username and password -> Create the role and db name into postgres pgAdmin view.
+After set the password. 
+
+datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://localhost:5432/bookstore
+        username: bookstore
+        password: root123
+
+Run with ./mvnw
+
+
+To run the project with production phase:
+./mvnw -Pprod

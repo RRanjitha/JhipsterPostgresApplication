@@ -1,0 +1,17 @@
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/ZonalResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/AuditResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/config/WebConfigurerTestController.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/LogsResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/repository/CustomAuditEventRepositoryIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/service/UserServiceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/UserResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/util/PaginationUtilUnitTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/security/DomainUserDetailsServiceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/AccountResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/service/MailServiceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/SectorResourceIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/errors/ExceptionTranslatorIntTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/errors/ExceptionTranslatorTestController.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/web/rest/TestUtil.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/security/SecurityUtilsUnitTest.java
+/home/ranjithar/Documents/Jhipster/PROJECT/postgres/src/test/java/com/bookstore/config/WebConfigurerTest.java
